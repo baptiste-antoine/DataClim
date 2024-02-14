@@ -14,7 +14,7 @@
 #'
 #' @author Baptiste ANTOINE
 #'
-#' @source Meteo France -> meteo.data.gouv.fr
+#' @source Meteo France (<https://meteo.data.gouv.fr/>)
 #'
 #' @export
 #'

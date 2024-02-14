@@ -7,5 +7,5 @@
 #' @examples
 #' data(maille_sim2)
 #'
-#' @source \url{https://meteo.data.gouv.fr} & Bertuzzi, Patrick; Clastre, Philippe, 2022, "Information sur les mailles SAFRAN", DOI 10.57745/1PDFNL, Recherche Data Gouv, V2.
+#' @source Meteo France (<https://meteo.data.gouv.fr/>) and Bertuzzi, Patrick; Clastre, Philippe, 2022, "Information sur les mailles SAFRAN", DOI 10.57745/1PDFNL, Recherche Data Gouv, V2.
 "maille_sim2"

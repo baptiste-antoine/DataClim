@@ -4,7 +4,7 @@
 \alias{get_maille}
 \title{Extract cell coordinate}
 \source{
-Meteo France -> meteo.data.gouv.fr et Bertuzzi, Patrick; Clastre,
+Meteo France (<https://meteo.data.gouv.fr/>) and Bertuzzi, Patrick; Clastre,
 Philippe, 2022, "Information sur les mailles SAFRAN", DOI 10.57745/1PDFNL,
 Recherche Data Gouv, V2.
 }

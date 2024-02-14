@@ -8,7 +8,7 @@
 data frame contenant 8602 lignes et 25 variables.
 }
 \source{
-\url{https://meteo.data.gouv.fr} & Bertuzzi, Patrick; Clastre, Philippe, 2022, "Information sur les mailles SAFRAN", DOI 10.57745/1PDFNL, Recherche Data Gouv, V2.
+Meteo France (<https://meteo.data.gouv.fr/>) and Bertuzzi, Patrick; Clastre, Philippe, 2022, "Information sur les mailles SAFRAN", DOI 10.57745/1PDFNL, Recherche Data Gouv, V2.
 }
 \usage{
 maille_sim2

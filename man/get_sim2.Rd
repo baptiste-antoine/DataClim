@@ -4,7 +4,7 @@
 \alias{get_sim2}
 \title{Extract SIM2 climate data}
 \source{
-Meteo France -> meteo.data.gouv.fr
+Meteo France (<https://meteo.data.gouv.fr/>)
 }
 \usage{
 get_sim2(years, x, y)

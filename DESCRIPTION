@@ -1,15 +1,15 @@
 Package: DataClim
 Type: Package
-Title: Analysis of Climate Change Data - Daily SIM Météo France 1958-08-01 to Now
+Title: Analysis of Climate Change Data - Daily SIM Meteo France 1958-08-01 to Now
 Version: 0.1.0
-Author: Baptiste ANTOINE
-Maintainer: Baptiste ANTOINE <baptiste.antoine2001@gmail.com>
-Description: Tools for analyzing daily data from the surface configuration 
-    simulation model (Safran-Isba). Surface atmospheric parameters and soil 
+Authors@R: person("Baptiste", "ANTOINE", role=c("aut", "cre", "cph"), 
+    email="baptiste.antoine2001@gmail.com", comment = c(ORCID = "0009-0007-0920-1430"))
+Description: Access and analyze daily data from the surface configuration 
+    simulation model (Safran-Isba) from Meteo France (<https://meteo.data.gouv.fr/>). 
+    Surface atmospheric parameters and soil 
     balances in the grid points from the analysis of models simulating water 
     and energy flows on the surface of the Earth. 
-    Data comes from meteo.data.gouv.fr.
-License: GPL-3
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
