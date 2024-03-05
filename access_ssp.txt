@@ -1,0 +1,7 @@
+https://cckpapi.worldbank.org/cckp/v1/cmip6-x0.25_climatology_tas_climatology,trend_annual_1971-2020,1995-2014,2001-2050,2020-2039,2040-2059,2051-2100,2060-2079,2080-2099_median,p10,p90_historical,ssp126,ssp245,ssp370,ssp585_ensemble_all_mean/FRA?_format=json
+
+https://cckpapi.worldbank.org/cckp/v1/cmip6-x0.25_climatology_tas_climatology,trend_annual_1971-2020,1995-2014,2001-2050,2020-2039,2040-2059,2051-2100,2060-2079,2080-2099_median,p10,p90_historical,ssp126,ssp245,ssp370,ssp585_ensemble_all_mean/FRA.851248?_format=json
+
+https://cckpapi.worldbank.org/cckp/v1/cmip6-x0.25_climatology_tas_climatology,trend_annual_1971-2020,1995-2014,2001-2050,2020-2039,2040-2059,2051-2100,2060-2079,2080-2099_median,p10,p90_historical,ssp126,ssp245,ssp370,ssp585_ensemble_all_mean/FRA.851250?_format=json
+
+https://cckpapi.worldbank.org/cckp/v1/cmip6-x0.25_timeseries_tas_timeseries_annual_1950-2014,2015-2100_mean,median,p10,p90_historical,ssp126,ssp245,ssp370,ssp585_ensemble_all_mean/FRA?_format=json
