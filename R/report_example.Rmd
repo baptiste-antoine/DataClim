@@ -1,0 +1,302 @@
+---
+title: "Untitled"
+author: "Baptiste ANTOINE"
+date: "2024-03-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+get_cc <- function(api_url) {
+  # Envoyer une requête GET à l'API
+  response <- GET(api_url)
+
+  # Vérifier si la requête a réussi (statut 200)
+  if (http_status(response)$category == "Success") {
+    # Lire et traiter les données JSON
+    data <- fromJSON(content(response, "text", encoding = "UTF-8"))
+
+    # Afficher ou traiter les données selon vos besoins
+    print(data)
+
+    # Organiser les données en dataframes
+    historical <- data.frame(temp = t(as.data.frame(data$data$`1950-2014`$median$historical$FRA)), year = c(1950:2014))
+    ssp126 <- data.frame(temp = t(as.data.frame(data$data$`2015-2100`$median$ssp126)), year = c(2015:2100))
+    ssp245 <- data.frame(temp = t(as.data.frame(data$data$`2015-2100`$median$ssp245)), year = c(2015:2100))
+    ssp370 <- data.frame(temp = t(as.data.frame(data$data$`2015-2100`$median$ssp370)), year = c(2015:2100))
+    ssp585 <- data.frame(temp = t(as.data.frame(data$data$`2015-2100`$median$ssp585)), year = c(2015:2100))
+
+    # Retourner les dataframes ou effectuer d'autres opérations si nécessaire
+    return(list(historical = historical, ssp126 = ssp126, ssp245 = ssp245, ssp370 = ssp370, ssp585 = ssp585))
+  } else {
+    cat("La requête a échoué. Statut:", http_status(response)$reason)
+    return(NULL)
+  }
+}
+
+# Exemple d'utilisation de la fonction
+url <- "https://cckpapi.worldbank.org/cckp/v1/cmip6-x0.25_timeseries_tas_timeseries_annual_1950-2014,2015-2100_mean,median_historical,ssp126,ssp245,ssp370,ssp585_ensemble_all_mean/FRA.851254?_format=json"
+resultats <- get_cc(url)
+
+# Vérifier si les résultats ne sont pas nuls avant de les utiliser
+if (!is.null(resultats)) {
+  # Accéder aux dataframes
+  historical <- resultats$historical
+  ssp126 <- resultats$ssp126
+  ssp245 <- resultats$ssp245
+  ssp370 <- resultats$ssp370
+  ssp585 <- resultats$ssp585
+
+}
+
+```
+
+
+```{r }
+library(dplyr)
+
+data <- read.csv("./data/exemple_data.csv")
+data$time <- as.Date(data$time)  # Si la colonne time est de type character
+data$time <- as.POSIXct(data$time)
+data$year <- as.integer(format(data$time, "%Y"))
+
+data <- data %>%
+  group_by(year) %>%
+  summarise(T_Q = mean(T_Q, na.rm = TRUE))
+
+data <- data |> filter(year > 1989 & year < 2024)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r }
+# Plotting
+plot(ssp585$year, ssp585$temp, col = "red", type = "l", xlim = c(1950,2100),
+     ylim = c(7,17))
+lines(data$year, data$France, type = 'l', main = "France Population Over Years", xlab = "Year", ylab = "Population")
+lines(ssp370$year, ssp370$temp, col = "orange", type = "l")
+lines(ssp245$year, ssp245$temp, col = "blue", type = "l")
+lines(ssp126$year, ssp126$temp, col = "green", type = "l")
+lines(historical$year, historical$temp, col = "black", type = "l")
+lines(data$year, data$T_Q, type = "p")
+lines(data$year, data$T_Q, type = "l")
+
+
+# Fit a linear model
+model <- lm(T_Q ~ year, data = data)
+
+# Add fitted values
+lines(data$year, fitted(model), col = "red", lty = 2)
+
+# Add confidence intervals
+intervals <- predict(model, interval = "confidence")
+lines(data$year, intervals[, "lwr"], col = "blue", lty = 3)
+lines(data$year, intervals[, "upr"], col = "blue", lty = 3)
+
+# Add prediction intervals
+prediction_intervals <- predict(model, interval = "prediction")
+lines(data$year, prediction_intervals[, "lwr"], col = "green", lty = 4)
+lines(data$year, prediction_intervals[, "upr"], col = "green", lty = 4)
+
+# Add legend
+legend("topleft", legend = c("Observed", "Fitted Values", "95% Confidence Intervals", "95% Prediction Intervals"),
+       col = c("black", "red", "blue", "green"), lty = c(1, 2, 3, 4))
+```
+
+```{r}
+# ... (votre code précédent)
+
+# Fit a linear model
+model <- lm(T_Q ~ year, data = data)
+
+# Prolonger la régression jusqu'en 2100
+future_years <- seq(2023, 2100, by = 1)  # Adapter selon vos besoins
+
+# Prédire les valeurs pour les années à venir
+predicted_values <- predict(model, newdata = data.frame(year = future_years), interval = "confidence")
+
+# Ajouter les valeurs prédites
+lines(future_years, predicted_values[, "fit"], col = "purple", lty = 2)
+
+# Ajouter intervalles de confiance pour les valeurs prédites
+lines(future_years, predicted_values[, "lwr"], col = "purple", lty = 3)
+lines(future_years, predicted_values[, "upr"], col = "purple", lty = 3)
+
+# ... (votre code précédent)
+
+# Ajouter légende mise à jour
+# legend("topleft", legend = c("Observed", "Fitted Values", "95% Confidence Intervals", "95% Prediction Intervals", "Extended Predictions"),
+#        col = c("black", "red", "blue", "green", "purple"), lty = c(1, 2, 3, 4, 2))
+
+```
+
+```{r}
+rm(list = ls())
+# Exemple de données
+set.seed(123)
+# Générer les dates de manière mensuelle
+dates <- seq(as.Date("1950-01-01"), as.Date("2022-12-31"), by = "month")
+
+# Générer des valeurs de température aléatoires pour chaque date
+temperatures <- runif(length(dates), 10, 30)
+
+# Créer le dataframe
+data <- data.frame(year = dates, temperature = temperatures)
+data$year <- as.Date(data$year)  # Si la colonne time est de type character
+data$year <- as.POSIXct(data$year)
+data$annee <- as.integer(format(data$year, "%Y"))
+
+# Calcul des moyennes pour différentes périodes
+moyenne_1961_1990 <- mean(data$temperature[data$annee >= 1961 & data$annee <= 1990])
+moyenne_1971_2000 <- mean(data$temperature[data$annee >= 1971 & data$annee <= 2000])
+moyenne_1981_2010 <- mean(data$temperature[data$annee >= 1981 & data$annee <= 2010])
+moyenne_1990_2020 <- mean(data$temperature[data$annee >= 1990 & data$annee <= 2020])
+
+# Création d'un dataframe pour le graphique
+df <- data.frame(
+  Periode = c("1961-1990", "1971-2000", "1981-2010", "1990-2020"),
+  Moyenne = c(moyenne_1961_1990, moyenne_1971_2000, moyenne_1981_2010, moyenne_1990_2020)
+)
+
+# Calcul des différences en pourcentage par rapport à la période précédente
+df$DiffPourcentage <- c(NA, (moyenne_1971_2000 - moyenne_1961_1990) / moyenne_1961_1990 * 100,
+                        (moyenne_1981_2010 - moyenne_1971_2000) / moyenne_1971_2000 * 100,
+                        (moyenne_1990_2020 - moyenne_1981_2010) / moyenne_1981_2010 * 100)
+
+# Graphique avec ggplot2
+library(ggplot2)
+
+# Barplot des moyennes
+barplot_df <- ggplot(df, aes(x = Periode, y = Moyenne, fill = Periode)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Moyennes de température pour différentes périodes",
+       y = "Température moyenne", x = "Période") +
+  theme_minimal()
+
+print(barplot_df)
+
+# Graphique des différences en pourcentage
+diffplot_df <- ggplot(df, aes(x = Periode, y = DiffPourcentage, fill = Periode)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Différences en pourcentage par rapport à la période précédente",
+       y = "Différence en pourcentage", x = "Période") +
+  theme_minimal()
+
+print(diffplot_df)
+
+
+```
+
+```{r}
+library(dplyr)
+
+data <- read.csv("./data/exemple_data.csv")
+data$time <- as.Date(data$time)  # Si la colonne time est de type character
+data$time <- as.POSIXct(data$time)
+data$year <- as.integer(format(data$time, "%Y"))
+
+data <- data %>%
+  group_by(year) %>%
+  summarise(T_Q = mean(T_Q, na.rm = TRUE))
+
+# Calcul des moyennes pour différentes périodes
+moyenne_1961_1990 <- mean(data$T_Q[data$year >= 1961 & data$year <= 1990])
+moyenne_1971_2000 <- mean(data$T_Q[data$year >= 1971 & data$year <= 2000])
+moyenne_1981_2010 <- mean(data$T_Q[data$year >= 1981 & data$year <= 2010])
+moyenne_1990_2020 <- mean(data$T_Q[data$year >= 1990 & data$year <= 2020])
+
+# Création d'un dataframe pour le graphique
+df <- data.frame(
+  Periode = c("1961-1990", "1971-2000", "1981-2010", "1990-2020"),
+  Moyenne = c(moyenne_1961_1990, moyenne_1971_2000, moyenne_1981_2010, moyenne_1990_2020)
+)
+
+# Calcul des différences en pourcentage par rapport à la période précédente
+df$DiffPourcentage <- c(NA, (moyenne_1971_2000 - moyenne_1961_1990) / moyenne_1961_1990 * 100,
+                        (moyenne_1981_2010 - moyenne_1971_2000) / moyenne_1971_2000 * 100,
+                        (moyenne_1990_2020 - moyenne_1981_2010) / moyenne_1981_2010 * 100)
+
+# Graphique avec ggplot2
+library(ggplot2)
+
+# Barplot des moyennes
+barplot_df <- ggplot(df, aes(x = Periode, y = Moyenne, fill = Periode)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Moyennes de température pour différentes périodes",
+       y = "Température moyenne", x = "Période") +
+  theme_minimal()
+
+print(barplot_df)
+
+# Graphique des différences en pourcentage
+diffplot_df <- ggplot(df, aes(x = Periode, y = DiffPourcentage, fill = Periode)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Différences en pourcentage par rapport à la période précédente",
+       y = "Différence en pourcentage", x = "Période") +
+  theme_minimal()
+
+print(diffplot_df)
+
+
+```
+
+```{r}
+library(dplyr)
+
+data <- read.csv("./data/pluie_exemple.csv")
+data$time <- as.Date(data$time)  # Si la colonne time est de type character
+data$time <- as.POSIXct(data$time)
+data$year <- as.integer(format(data$time, "%Y"))
+
+data <- data %>%
+  group_by(year) %>%
+  summarise(PRELIQ_Q = sum(PRELIQ_Q, na.rm = TRUE))
+
+# Calcul des moyennes pour différentes périodes
+moyenne_1961_1990 <- mean(data$PRELIQ_Q[data$year >= 1961 & data$year <= 1990])
+moyenne_1971_2000 <- mean(data$PRELIQ_Q[data$year >= 1971 & data$year <= 2000])
+moyenne_1981_2010 <- mean(data$PRELIQ_Q[data$year >= 1981 & data$year <= 2010])
+moyenne_1990_2020 <- mean(data$PRELIQ_Q[data$year >= 1990 & data$year <= 2020])
+
+# Création d'un dataframe pour le graphique
+df <- data.frame(
+  Periode = c("1961-1990", "1971-2000", "1981-2010", "1990-2020"),
+  Moyenne = c(moyenne_1961_1990, moyenne_1971_2000, moyenne_1981_2010, moyenne_1990_2020)
+)
+
+# Calcul des différences en pourcentage par rapport à la période précédente
+df$DiffPourcentage <- c(NA, (moyenne_1971_2000 - moyenne_1961_1990) / moyenne_1961_1990 * 100,
+                        (moyenne_1981_2010 - moyenne_1971_2000) / moyenne_1971_2000 * 100,
+                        (moyenne_1990_2020 - moyenne_1981_2010) / moyenne_1981_2010 * 100)
+
+# Graphique avec ggplot2
+library(ggplot2)
+
+# Barplot des moyennes
+barplot_df <- ggplot(df, aes(x = Periode, y = Moyenne, fill = Periode)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Moyennes de température pour différentes périodes",
+       y = "Température moyenne", x = "Période") +
+  theme_minimal()
+
+print(barplot_df)
+
+# Graphique des différences en pourcentage
+diffplot_df <- ggplot(df, aes(x = Periode, y = DiffPourcentage, fill = Periode)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Différences en pourcentage par rapport à la période précédente",
+       y = "Différence en pourcentage", x = "Période") +
+  theme_minimal()
+
+print(diffplot_df)
+
+
+```
